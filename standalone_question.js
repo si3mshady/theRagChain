@@ -10,7 +10,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const openAPIkey = process.env.OPEN_API_KEY;
 
-const question = "How does AWS protect data at rest?"
+const question = "I am new to AWS what does KMS do?"
 
 const llm = new ChatOpenAI({openAIApiKey:openAPIkey})
 
@@ -46,16 +46,26 @@ if the question is a statement get to the core issue and extract a standalone qu
 const standalone_question_prompt =  PromptTemplate.fromTemplate(standalone_question)
 
 
-const chain = await standalone_question_prompt.pipe(llm)
+const standalone_question_prompt_chain = await standalone_question_prompt.pipe(llm)
     .pipe(new StringOutputParser())
     .pipe(retriever)
-    .pipe(retriever)
+ 
+
+
+const vectorstore_contexts =  await standalone_question_prompt_chain.invoke({ question: question})
 
 
 
-const response =  await chain.invoke({ question: question})
 
+const final_response = "Generate a conversational answer based on the original question {question} and using the context \
+{context}"
 
+const final_response_prompt_template =  PromptTemplate.fromTemplate(final_response)
+const final_response_chain  = await final_response_prompt_template.pipe(llm)
 
+const result = await final_response_chain.invoke({
+    question:question,
+    context: vectorstore_contexts[0].pageContent
+})  
 
-console.log(response)
+console.log(result)
