@@ -17,7 +17,7 @@ const liPromptChain = liPrompt.pipe(llm)
 // console.log(liPromptChain)
 
 const response = await liPromptChain.invoke({
-    description: "langchain"
+    description: "Foods for brain health"
 })
 
-console.log(response)
+console.log(response.content)
