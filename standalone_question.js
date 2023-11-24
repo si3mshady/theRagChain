@@ -3,7 +3,7 @@ import { PromptTemplate} from "langchain/prompts"
 // Import SupabaseVectorStore class and OpenAIEmbeddings class from the specified modules
 import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-
+import { StringOutputParser } from "langchain/schema/output_parser";
 // Import createClient function from the specified module
 import { createClient } from "@supabase/supabase-js";
 
@@ -34,24 +34,28 @@ const vectorstore = new SupabaseVectorStore(embeddings, {
 
 const retriever = vectorstore.asRetriever()
 
-const resp = await retriever.invoke("How does AWS protect data at rest?")
+// const resp = await retriever.invoke("How does AWS protect data at rest?")
 
-console.log(resp)
-
-
-
-// const standalone_question = "Generate a standalone question based on {question} make as concise as possible \
-// if the question is a statement get to the core issue and extract a standalone question from it. standalone question:"
-
-// const standalone_question_prompt =  PromptTemplate.fromTemplate(standalone_question)
-
-// const standalone_question_prompt_chain = standalone_question_prompt.pipe(llm)
-
-// const response =  await standalone_question_prompt_chain.invoke({
-//     question: question
-// })
+// console.log(resp)
 
 
 
+const standalone_question = "Generate a standalone question based on {question} make as concise as possible \
+if the question is a statement get to the core issue and extract a standalone question from it. standalone question:"
 
-// console.log(response)
+const standalone_question_prompt =  PromptTemplate.fromTemplate(standalone_question)
+
+
+const chain = await standalone_question_prompt.pipe(llm)
+    .pipe(new StringOutputParser())
+    .pipe(retriever)
+    .pipe(retriever)
+
+
+
+const response =  await chain.invoke({ question: question})
+
+
+
+
+console.log(response)

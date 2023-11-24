@@ -8,7 +8,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 
-
+import {retriever} from "./receiver"
 
 // Import createClient function from the specified module
 import { createClient } from "@supabase/supabase-js";
