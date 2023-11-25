@@ -5,6 +5,7 @@ import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { StringOutputParser } from "langchain/schema/output_parser";
 import { createClient } from "@supabase/supabase-js";
+import {combine_documents} from "./utils/combine"
 
 // Define the OpenAI API key
 const openAPIkey = process.env.OPEN_API_KEY;
@@ -46,10 +47,7 @@ const standalone_question_prompt_chain = await standalone_question_prompt.pipe(l
 // Invoke the chain to get vectorstore_contexts
 const vectorstore_contexts = await standalone_question_prompt_chain.invoke({ question: question });
 
-// Function to combine documents into a single string
-function combine_documents(documents) {
-    return documents.map((doc) => (doc.pageContent)).join('\n\n');
-}
+
 
 // Define a template for generating the final response
 const final_response = "Generate an answer based on the original question {question} and try to find the answer in \
