@@ -10,7 +10,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const openAPIkey = process.env.OPEN_API_KEY;
 
-const question = "I am new to AWS what does KMS do?"
+
 
 const llm = new ChatOpenAI({openAIApiKey:openAPIkey})
 
@@ -40,32 +40,42 @@ const retriever = vectorstore.asRetriever()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const question = "what is PII and what can aws do protect it?"
 const standalone_question = "Generate a standalone question based on {question} make as concise as possible \
 if the question is a statement get to the core issue and extract a standalone question from it. standalone question:"
-
 const standalone_question_prompt =  PromptTemplate.fromTemplate(standalone_question)
-
-
 const standalone_question_prompt_chain = await standalone_question_prompt.pipe(llm)
     .pipe(new StringOutputParser())
     .pipe(retriever)
- 
-
-
 const vectorstore_contexts =  await standalone_question_prompt_chain.invoke({ question: question})
+function combine_documents(documents) {
 
+    return documents.map((doc) => (doc.pageContent)).join('\n\n')
 
-
-
-const final_response = "Generate a conversational answer based on the original question {question} and using the context \
-{context}"
-
+}
+const final_response = "Generate an answer based on the original question {question} and try to find the answer in \
+the context using the context {context} if an answer is not present in the context have the user email Elliott @ theCloudShepherd@gmail.com \
+always be concise and friendly with your responses. Like you are speaking to a friend. \
+answer:"
 const final_response_prompt_template =  PromptTemplate.fromTemplate(final_response)
 const final_response_chain  = await final_response_prompt_template.pipe(llm)
-
 const result = await final_response_chain.invoke({
     question:question,
-    context: vectorstore_contexts[0].pageContent
-})  
+    context: combine_documents(vectorstore_contexts) 
+}) 
 
 console.log(result)
